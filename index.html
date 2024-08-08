@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time-limited Click Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px; /* 페이지 상단 여백 추가 */
+        }
+        #game {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            margin: auto;
+            border: 2px solid #ccc;
+            overflow: hidden;
+            background-image: url("고양이.png");
+            background-size: cover;
+            background-repeat: no-repeat;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .item {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+        }
+        .cat {
+            content: url("고양이.png");
+        }
+        .fish {
+            content: url("생선.png");
+        }
+        #score {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+        #timer {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        #result {
+            font-size: 32px;
+            font-weight: bold;
+            color: green;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="timer">Time: <span id="time-left">30</span> sec</div>
+        <div id="result"></div>
+    </div>
+    <div id="score">Score: <span id="score-value">0</span></div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30; // 제한 시간 (초)
+        let timerInterval;
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30; // 제한 시간 초기화
+            updateScore(0);
+            updateTimer(timeLeft);
+
+            // 게임 영역 클리어
+            document.querySelectorAll(".item").forEach(item => item.remove());
+
+            // 게임 타이머 시작
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimer(timeLeft);
+                if (timeLeft === 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            // 초기 아이템 생성
+            createItem();
+        }
+
+        function createItem() {
+            let items = ["cat", "fish"]; // 이미지 종류: 고양이, 생선
+            let randomIndex = Math.floor(Math.random() * items.length); // 랜덤 인덱스 선택
+            let item = document.createElement("img");
+            item.classList.add("item");
+            item.classList.add(items[randomIndex]);
+            item.style.left = Math.random() * (600 - 100) + "px"; // x 좌표 (게임 영역 너비 - 아이템 크기)
+            item.style.top = Math.random() * (400 - 100) + "px"; // y 좌표 (게임 영역 높이 - 아이템 크기)
+            item.addEventListener("click", itemClicked);
+            document.getElementById("game").appendChild(item);
+        }
+
+        function itemClicked(event) {
+            let clickedItem = event.target;
+            if (clickedItem.classList.contains("cat")) {
+                score++;
+            } else if (clickedItem.classList.contains("fish")) {
+                score++; // 생선을 클릭하면 점수를 증가시킵니다.
+            }
+            updateScore(score);
+            createItem(); // 새로운 아이템 생성
+            clickedItem.remove(); // 클릭된 아이템 삭제
+        }
+
+        function updateScore(score) {
+            document.getElementById("score-value").textContent = score;
+        }
+
+        function updateTimer(time) {
+            document.getElementById("time-left").textContent = time;
+        }
+
+        function endGame() {
+            clearInterval(timerInterval); // 타이머 중지
+            document.getElementById("result").textContent = `Time's up! Your score: ${score}`;
+            document.getElementById("result").style.display = "block";
+        }
+
+        // 게임 초기화
+        window.onload = function() {
+            startGame();
+        };
+    </script>
+</body>
+</html>
